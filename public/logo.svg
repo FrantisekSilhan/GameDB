@@ -1,0 +1,10 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="120" rx="24" fill="#1B2836"/>
+  <g>
+    <circle cx="60" cy="60" r="54" fill="#fff" fill-opacity="0.08"/>
+    <circle cx="60" cy="60" r="42" fill="#fff" fill-opacity="0.12"/>
+    <circle cx="60" cy="60" r="30" fill="#fff" fill-opacity="0.18"/>
+    <text x="60" y="78" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="48" fill="#fff" font-weight="bold" letter-spacing="2">G</text>
+    <text x="85" y="105" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#7EC5F7" font-weight="bold">DB</text>
+  </g>
+</svg>
