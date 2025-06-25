@@ -10,7 +10,7 @@ A fast, simple API for searching Steam games by name or appid.
 ## Features
 
 - 🔍 Search Steam games by name (fuzzy, full-text search)
-- 🔢 Search by appid (with nearby appids for convenience)
+- 🔢 Search by appid (with nearby appids)
 - 🚀 Fast, lightweight, and easy to use
 - 🟢 Open API, no authentication required
 

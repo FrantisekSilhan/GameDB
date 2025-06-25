@@ -11,20 +11,120 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (_, res) => {
-  res.type("text").send(
-    [
-      "Welcome to the GameDB API!",
-      "",
-      "Available endpoints:",
-      "  GET  /search?q=your_query   - Search for games by name or appid",
-      "",
-      "Examples:",
-      "  /search?q=counter strike",
-      "  /search?q=730",
-      "",
-      "Have fun! 🚀"
-    ].join("\n")
-  );
+  const startYear = 2025;
+  const currentYear = new Date().getFullYear();
+  const yearDisplay = currentYear === startYear
+    ? `${startYear}`
+    : `${startYear}-${currentYear}`;
+
+  res.type("html").send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <title>GameDB API – Search Steam Games by Name or AppID</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta name="description" content="GameDB is a fast, simple API for searching Steam games by name or appid. Try it live or check out the source code on GitHub." />
+      <meta property="og:title" content="GameDB API – Search Steam Games" />
+      <meta property="og:description" content="A fast, simple API for searching Steam games by name or appid. Free and open source." />
+      <meta property="og:url" content="https://steam.watercollector.icu/" />
+      <meta property="og:type" content="website" />
+      <meta property="og:image" content="https://steam.watercollector.icu/android-chrome-512x512.png" />
+      <link rel="canonical" href="https://steam.watercollector.icu/" />
+
+      <link rel="icon" type="image/x-icon" href="/favicon.ico">
+      <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+      <link rel="icon" type="image/svg+xml" href="/logo.svg">
+      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+      <link rel="manifest" href="/site.webmanifest">
+      <link rel="shortcut icon" href="/favicon.ico">
+      <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+      <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+      <meta name="theme-color" content="#1B2836">
+
+      <style>
+        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; }
+        code { background: #f4f4f4; padding: 2px 4px; border-radius: 4px; }
+        a { color: #0078d7; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        header, main, nav, footer { display: block; }
+        footer { margin-top: 2rem; font-size: 0.875rem; color: #666; text-align: center; }
+      </style>
+      <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebAPI",
+          "name": "GameDB API",
+          "description": "A fast, simple API for searching Steam games by name or appid.",
+          "documentation": "https://github.com/FrantisekSilhan/GameDB",
+          "url": "https://steam.watercollector.icu/",
+          "provider": {
+            "@type": "Person",
+            "name": "František Šilhán",
+            "url": "https://github.com/FrantisekSilhan"
+          }
+        }
+      </script>
+    </head>
+    <body>
+      <header>
+        <h1>GameDB API</h1>
+        <p>
+          <strong>Live:</strong>
+          <a href="https://steam.watercollector.icu/" target="_blank" rel="noopener">steam.watercollector.icu</a><br>
+          <strong>GitHub:</strong>
+          <a href="https://github.com/FrantisekSilhan/GameDB" target="_blank" rel="noopener">FrantisekSilhan/GameDB</a>
+        </p>
+      </header>
+      <main>
+        <section>
+          <h2>What is GameDB?</h2>
+          <p>
+            GameDB is a fast, simple API for searching Steam games by name or appid.
+            It’s free, open source, and easy to use.
+          </p>
+        </section>
+        <nav>
+          <h2>Available Endpoints</h2>
+          <ul>
+            <li>
+              <code>GET /search?q=your_query</code> –
+              Search for games by name or appid
+            </li>
+          </ul>
+        </nav>
+        <section>
+          <h2>Examples</h2>
+          <ul>
+            <li>
+              <a href="/search?q=counter%20strike">
+                Search for <code>counter strike</code>
+              </a>
+            </li>
+            <li>
+              <a href="/search?q=730">
+                Search for <code>730</code>
+              </a>
+            </li>
+          </ul>
+        </section>
+        <section>
+          <h2>Result Limits</h2>
+          <ul>
+            <li><strong>Text search:</strong> up to 10 results</li>
+            <li><strong>Appid search:</strong> up to 21 results (appid ±10)</li>
+          </ul>
+        </section>
+      </main>
+      <footer>
+        <p>
+          &copy; ${yearDisplay} <a href="https://github.com/FrantisekSilhan" target="_blank" rel="noopener">František Šilhán</a> &mdash; AGPL-3.0 License
+        </p>
+      </footer>
+    </body>
+    </html>
+  `);
 });
 
 app.get("/search", async (req, res) => {
@@ -66,6 +166,8 @@ app.get("/search", async (req, res) => {
 
   res.json(results);
 });
+
+app.use(express.static("public"));
 
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Server is running on port ${process.env.PORT || 3000}`);
