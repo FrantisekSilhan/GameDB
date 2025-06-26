@@ -98,12 +98,12 @@ app.get("/", (_, res) => {
           <h2>Examples</h2>
           <ul>
             <li>
-              <a href="/search?q=counter%20strike">
+              <a href="/search?q=counter%20strike" rel="nofollow">
                 Search for <code>counter strike</code>
               </a>
             </li>
             <li>
-              <a href="/search?q=730">
+              <a href="/search?q=730" rel="nofollow">
                 Search for <code>730</code>
               </a>
             </li>
@@ -168,6 +168,53 @@ app.get("/search", async (req, res) => {
 });
 
 app.use(express.static("public"));
+
+app.use((_, res) => {
+  res.status(404).type("html").send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <title>404 – Not Found | GameDB API</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <style>
+        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; color: #333; }
+        h1 { color: #c00; }
+        a { color: #0078d7; }
+      </style>
+    </head>
+    <body>
+      <h1>404 – Not Found</h1>
+      <p>The page you requested does not exist.</p>
+      <p><a href="/">Go back to the homepage</a></p>
+    </body>
+    </html>
+  `);
+});
+
+app.use((err: any, _: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(err);
+  res.status(500).type("html").send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <title>500 – Server Error | GameDB API</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <style>
+        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; color: #333; }
+        h1 { color: #c00; }
+        a { color: #0078d7; }
+      </style>
+    </head>
+    <body>
+      <h1>500 – Server Error</h1>
+      <p>Sorry, something went wrong on our end.</p>
+      <p><a href="/">Go back to the homepage</a></p>
+    </body>
+    </html>
+  `);
+});
 
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Server is running on port ${process.env.PORT || 3000}`);
