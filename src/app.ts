@@ -1,7 +1,7 @@
 import express from "express";
 import { db, schema } from "./db";
 import "./setup";
-import { between, sql } from "drizzle-orm";
+import { between, inArray, sql } from "drizzle-orm";
 import { syncSteamGames } from "./utils/sync";
 
 const app = express();
@@ -13,24 +13,23 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/", (_, res) => {
   const startYear = 2025;
   const currentYear = new Date().getFullYear();
-  const yearDisplay = currentYear === startYear
-    ? `${startYear}`
-    : `${startYear}-${currentYear}`;
+  const yearDisplay =
+    currentYear === startYear ? `${startYear}` : `${startYear}-${currentYear}`;
 
   res.type("html").send(`
     <!DOCTYPE html>
     <html lang="en">
     <head>
-      <meta charset="UTF-8" />
+      <meta charset="UTF-8" >
       <title>GameDB API – Search Steam Games by Name or AppID</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <meta name="description" content="GameDB is a fast, simple API for searching Steam games by name or appid. Try it live or check out the source code on GitHub." />
-      <meta property="og:title" content="GameDB API – Search Steam Games" />
-      <meta property="og:description" content="A fast, simple API for searching Steam games by name or appid. Free and open source." />
-      <meta property="og:url" content="https://steam.watercollector.icu/" />
-      <meta property="og:type" content="website" />
-      <meta property="og:image" content="https://steam.watercollector.icu/android-chrome-512x512.png" />
-      <link rel="canonical" href="https://steam.watercollector.icu/" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" >
+      <meta name="description" content="GameDB is a fast, simple API for searching Steam games by name or appid. Try it live or check out the source code on GitHub." >
+      <meta property="og:title" content="GameDB API – Search Steam Games" >
+      <meta property="og:description" content="A fast, simple API for searching Steam games by name or appid. Free and open source." >
+      <meta property="og:url" content="https://steam.watercollector.icu/" >
+      <meta property="og:type" content="website" >
+      <meta property="og:image" content="https://steam.watercollector.icu/android-chrome-512x512.png" >
+      <link rel="canonical" href="https://steam.watercollector.icu/" >
 
       <link rel="icon" type="image/x-icon" href="/favicon.ico">
       <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -50,6 +49,8 @@ app.get("/", (_, res) => {
         a:hover { text-decoration: underline; }
         header, main, nav, footer { display: block; }
         footer { margin-top: 2rem; font-size: 0.875rem; color: #666; text-align: center; }
+        ul { padding-left: 1.2em; }
+        li { margin-bottom: 0.5em; }
       </style>
       <script type="application/ld+json">
         {
@@ -86,11 +87,26 @@ app.get("/", (_, res) => {
           </p>
         </section>
         <nav>
-          <h2>Available Endpoints</h2>
+          <h2>API Endpoints</h2>
           <ul>
             <li>
-              <code>GET /search?q=your_query</code> –
-              Search for games by name or appid
+              <strong>GET <code>/search</code></strong><br>
+              <em>Query parameters:</em> <code>q</code> (game name or appid)<br>
+              <em>Returns:</em> List of matching games (JSON)<br>
+              <em>Limits:</em>
+              <ul>
+                <li>Text search: up to 10 results</li>
+                <li>Appid search: up to 21 results (appid ±10)</li>
+              </ul>
+            </li>
+            <li>
+              <strong>POST <code>/verify</code></strong><br>
+              <em>Body:</em> JSON <code>{"appids": [730, 440, ...]}</code> (max 100 appids)<br>
+              <em>Returns:</em> Validity of each appid (JSON)<br>
+              <em>Limits:</em>
+              <ul>
+                <li>Maximum 100 appids per request</li>
+              </ul>
             </li>
           </ul>
         </nav>
@@ -99,22 +115,27 @@ app.get("/", (_, res) => {
           <ul>
             <li>
               <a href="/search?q=counter%20strike" rel="nofollow">
-                Search for <code>counter strike</code>
+                <code>GET /search?q=counter%20strike</code>
               </a>
+              – Search for <code>counter strike</code>
             </li>
             <li>
               <a href="/search?q=730" rel="nofollow">
-                Search for <code>730</code>
+                <code>GET /search?q=730</code>
               </a>
+              – Search for <code>730</code>
             </li>
           </ul>
-        </section>
-        <section>
-          <h2>Result Limits</h2>
-          <ul>
-            <li><strong>Text search:</strong> up to 10 results</li>
-            <li><strong>Appid search:</strong> up to 21 results (appid ±10)</li>
-          </ul>
+          <p><strong>POST <code>/verify</code> example:</strong></p>
+            <pre><code>{
+  "appids": [730, 440, 123456]
+}</code></pre>
+            <em>Response:</em>
+            <pre><code>{
+  "allValid": false,
+  "valid": [730, 440],
+  "invalid": [123456]
+}</code></pre>
         </section>
       </main>
       <footer>
@@ -165,6 +186,36 @@ app.get("/search", async (req, res) => {
   `,)).rows;
 
   res.json(results);
+});
+
+app.post("/verify", async (req, res) => {
+  const appids: number[] = req.body.appids;
+  const MAX_APPIDS = 100;
+
+  if (!Array.isArray(appids) || appids.length === 0) {
+    res.status(400).json({ error: "Request body must contain an array of appids" });
+    return;
+  }
+
+  if (appids.length > MAX_APPIDS) {
+    res.status(400).json({ error: `Maximum ${MAX_APPIDS} appids allowed per request` });
+    return;
+  }
+
+  const rows = await db
+    .select()
+    .from(schema.game)
+    .where(inArray(schema.game.id, appids));
+
+  const valid = rows.map(row => row.id);
+  const invalid = appids.filter(id => !valid.includes(id));
+  const allValid = invalid.length === 0;
+
+  res.json({
+    allValid: allValid,
+    valid: valid,
+    invalid: invalid,
+  });
 });
 
 app.use(express.static("public"));

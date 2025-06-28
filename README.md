@@ -11,47 +11,79 @@ A fast, simple API for searching Steam games by name or appid.
 
 - 🔍 Search Steam games by name (fuzzy, full-text search)
 - 🔢 Search by appid (with nearby appids)
+- ✅ Bulk verify appids
 - 🚀 Fast, lightweight, and easy to use
 - 🟢 Open API, no authentication required
 
 ---
 
-## API Usage
+## API Endpoints
 
-### Root
+### 1. Root
 
-`GET /`
+**GET /**
 
 Returns a simple usage guide.
 
 ---
 
-### Search
+### 2. Search
 
-`GET /search?q=your_query`
+**GET /search**
 
-- **q**: Game name (full or partial, e.g. `counter strike`) or appid (e.g. `730`)
+**Query parameters:**
 
-#### Examples
+- `q` (string): Game name (full or partial, e.g. `counter strike`) or appid (e.g. `730`)
+
+**Result limits:**
+
+- **Text search:** Up to 10 results
+- **Appid search:** Up to 21 results (appid ±10)
+
+**Example requests:**
 
 - [Search for "counter strike"](https://steam.watercollector.icu/search?q=counter%20strike)
 - [Search for appid 730](https://steam.watercollector.icu/search?q=730)
 
-#### Response
-
-- **Text search:** Returns up to **10** matching games as JSON.
-- **Appid search:** Returns up to **21** games (the appid and up to 10 before/after, if they exist).
+**Example response:**
 
 ```json
 [
   {
     "id": 730,
-    "name": "Counter-Strike: Global Offensive",
-    // ...other fields
-  },
-  ...
+    "name": "Counter-Strike 2"
+  }
 ]
 ```
+
+---
+
+### 3. Verify AppIDs
+
+**POST /verify**
+
+**Request body:**  
+JSON object with an array of appids (max 100):
+
+```json
+{
+  "appids": [730, 440, 123456]
+}
+```
+
+**Response:**
+
+```json
+{
+  "allValid": false,
+  "valid": [730, 440],
+  "invalid": [123456]
+}
+```
+
+- `allValid`: `true` if all IDs are valid, `false` otherwise
+- `valid`: array of valid appids
+- `invalid`: array of invalid appids
 
 ---
 
