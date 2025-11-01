@@ -87,6 +87,37 @@ JSON object with an array of appids (max 100):
 
 ---
 
+### 4. Get Game Names
+
+**POST /names**
+
+**Request body:**  
+JSON object with an array of appids (max 100):
+
+```json
+{
+  "appids": [730, 440, 570]
+}
+```
+
+**Response:**
+
+```json
+{
+  "count": 3,
+  "games": {
+    "730": "Counter-Strike 2",
+    "440": "Team Fortress 2",
+    "570": "Dota 2"
+  }
+}
+```
+
+- `count`: number of valid matching games  
+- `games`: object mapping appid → game name  
+
+---
+
 ## Self-Hosting
 
 1. **Clone the repo:**

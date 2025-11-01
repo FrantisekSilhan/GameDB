@@ -51,6 +51,7 @@ app.get("/", (_, res) => {
         footer { margin-top: 2rem; font-size: 0.875rem; color: #666; text-align: center; }
         ul { padding-left: 1.2em; }
         li { margin-bottom: 0.5em; }
+        pre { background: #f4f4f4; padding: 1em; border-radius: 6px; overflow-x: auto; }
       </style>
       <script type="application/ld+json">
         {
@@ -102,11 +103,12 @@ app.get("/", (_, res) => {
             <li>
               <strong>POST <code>/verify</code></strong><br>
               <em>Body:</em> JSON <code>{"appids": [730, 440, ...]}</code> (max 100 appids)<br>
-              <em>Returns:</em> Validity of each appid (JSON)<br>
-              <em>Limits:</em>
-              <ul>
-                <li>Maximum 100 appids per request</li>
-              </ul>
+              <em>Returns:</em> Validity of each appid (JSON)
+            </li>
+            <li>
+              <strong>POST <code>/names</code></strong><br>
+              <em>Body:</em> JSON <code>{"appids": [730, 440, ...]}</code> (max 100 appids)<br>
+              <em>Returns:</em> Names of matching games (JSON)
             </li>
           </ul>
         </nav>
@@ -127,14 +129,28 @@ app.get("/", (_, res) => {
             </li>
           </ul>
           <p><strong>POST <code>/verify</code> example:</strong></p>
-            <pre><code>{
+          <pre><code>{
   "appids": [730, 440, 123456]
 }</code></pre>
             <em>Response:</em>
-            <pre><code>{
+          <pre><code>{
   "allValid": false,
   "valid": [730, 440],
   "invalid": [123456]
+}</code></pre>
+
+          <p><strong>POST <code>/names</code> example:</strong></p>
+          <pre><code>{
+  "appids": [730, 440, 570]
+}</code></pre>
+          <em>Response:</em>
+          <pre><code>{
+  "count": 3,
+  "games": {
+    "730": "Counter-Strike 2",
+    "440": "Team Fortress 2",
+    "570": "Dota 2"
+  }
 }</code></pre>
         </section>
       </main>
@@ -215,6 +231,39 @@ app.post("/verify", async (req, res) => {
     allValid: allValid,
     valid: valid,
     invalid: invalid,
+  });
+});
+
+app.post("/names", async (req, res) => {
+  const appids: number[] = req.body.appids;
+  const MAX_APPIDS = 100;
+
+  if (!Array.isArray(appids) || appids.length === 0) {
+    res.status(400).json({ error: "Request body must contain an array of appids" });
+    return;
+  }
+
+  if (appids.length > MAX_APPIDS) {
+    res.status(400).json({ error: `Maximum ${MAX_APPIDS} appids allowed per request` });
+    return;
+  }
+
+  const rows = await db
+    .select({
+      id: schema.game.id,
+      name: schema.game.name,
+    })
+    .from(schema.game)
+    .where(inArray(schema.game.id, appids));
+
+  const result: Record<number, string> = {};
+  for (const row of rows) {
+    result[row.id] = row.name;
+  }
+
+  res.json({
+    count: rows.length,
+    games: result,
   });
 });
 
