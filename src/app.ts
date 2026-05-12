@@ -26,10 +26,10 @@ app.get("/", (_, res) => {
       <meta name="description" content="GameDB is a fast, simple API for searching Steam games by name or appid. Try it live or check out the source code on GitHub." >
       <meta property="og:title" content="GameDB API – Search Steam Games" >
       <meta property="og:description" content="A fast, simple API for searching Steam games by name or appid. Free and open source." >
-      <meta property="og:url" content="https://steam.watercollector.icu/" >
+      <meta property="og:url" content="https://gamedb.dev.pvq.cz/" >
       <meta property="og:type" content="website" >
-      <meta property="og:image" content="https://steam.watercollector.icu/android-chrome-512x512.png" >
-      <link rel="canonical" href="https://steam.watercollector.icu/" >
+      <meta property="og:image" content="https://gamedb.dev.pvq.cz/android-chrome-512x512.png" >
+      <link rel="canonical" href="https://gamedb.dev.pvq.cz/" >
 
       <link rel="icon" type="image/x-icon" href="/favicon.ico">
       <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -60,7 +60,7 @@ app.get("/", (_, res) => {
           "name": "GameDB API",
           "description": "A fast, simple API for searching Steam games by name or appid.",
           "documentation": "https://github.com/FrantisekSilhan/GameDB",
-          "url": "https://steam.watercollector.icu/",
+          "url": "https://gamedb.dev.pvq.cz/",
           "provider": {
             "@type": "Person",
             "name": "František Šilhán",
@@ -74,7 +74,7 @@ app.get("/", (_, res) => {
         <h1>GameDB API</h1>
         <p>
           <strong>Live:</strong>
-          <a href="https://steam.watercollector.icu/" target="_blank" rel="noopener">steam.watercollector.icu</a><br>
+          <a href="https://gamedb.dev.pvq.cz/" target="_blank" rel="noopener">gamedb.dev.pvq.cz</a><br>
           <strong>GitHub:</strong>
           <a href="https://github.com/FrantisekSilhan/GameDB" target="_blank" rel="noopener">FrantisekSilhan/GameDB</a>
         </p>

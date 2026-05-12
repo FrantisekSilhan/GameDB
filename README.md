@@ -2,7 +2,7 @@
 
 A fast, simple API for searching Steam games by name or appid.
 
-**Live demo:** [steam.watercollector.icu](https://steam.watercollector.icu/)  
+**Live demo:** [gamedb.dev.pvq.cz](https://gamedb.dev.pvq.cz/)  
 **GitHub:** [FrantisekSilhan/GameDB](https://github.com/FrantisekSilhan/GameDB)
 
 ---
@@ -42,8 +42,8 @@ Returns a simple usage guide.
 
 **Example requests:**
 
-- [Search for "counter strike"](https://steam.watercollector.icu/search?q=counter%20strike)
-- [Search for appid 730](https://steam.watercollector.icu/search?q=730)
+- [Search for "counter strike"](https://gamedb.dev.pvq.cz/search?q=counter%20strike)
+- [Search for appid 730](https://gamedb.dev.pvq.cz/search?q=730)
 
 **Example response:**
 
